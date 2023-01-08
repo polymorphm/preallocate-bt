@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+from lib_preallocate_bt import main as _main
+
+if __name__ == '__main__':
+    _code = _main()
+    
+    if _code is not None:
+        exit(_code)
+
+# vi:ts=4:sw=4:et
