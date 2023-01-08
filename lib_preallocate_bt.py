@@ -3,7 +3,7 @@ import os, os.path
 import math
 import torrent_parser
 
-PREALLOCATE_BUF_SIZE = 128 * 1024 * 1024
+PREALLOCATE_BUF_SIZE = 32 * 1024 * 1024
 
 def check_file_name(fn):
     if '/' in fn or '\x00' in fn or fn == '.' or fn == '..':
