@@ -1,6 +1,8 @@
 import argparse
 import os, os.path
 import math
+import time
+
 import torrent_parser
 
 PREALLOCATE_BUF_SIZE = 32 * 1024 * 1024
@@ -60,8 +62,14 @@ def make_verbose_hooks():
         else:
             print(f'preallocation file: {repr(os.path.join(*names))}: done')
     
-    def preallocation_pos(pos):
-        print(f'current position: {repr(pos)} ({format_length(pos)})')
+    def preallocation_pos(pos, l_prev, t_prev, t):
+        if l_prev is not None and t_prev is not None and t is not None:
+            speed = math.ceil(l_prev / (t - t_prev))
+            
+            print(f'current position: {repr(pos)} ({format_length(pos)})'
+                    f'; buffer written at {format_length(speed)}/s')
+        else:
+            print(f'current position: {repr(pos)} ({format_length(pos)})')
     
     return {
         'start_reading_torrent_file': start_reading_torrent_file,
@@ -158,11 +166,17 @@ def preallocate_file(dest_dir, file, verbose_hooks=None,
     
     check_file_in_dir(dest_dir, part_file_path)
     
+    l = None
+    t = None
+    
     with open(part_file_path, 'ab') as fd:
         while True:
+            l_prev, t_prev, t = l, t, time.monotonic()
+            
             pos = fd.tell()
             
-            apply_hook(verbose_hooks, 'preallocation_pos', pos)
+            apply_hook(verbose_hooks, 'preallocation_pos', pos,
+                    l_prev, t_prev, t)
             
             if pos >= length:
                 break
