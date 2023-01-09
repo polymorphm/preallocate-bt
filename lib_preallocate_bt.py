@@ -21,6 +21,9 @@ def check_file_in_dir(dir_path, file_path):
 
 def format_length(length):
     table = [
+        (1000_000_000_000_000_000_000, 'ZB', 10),
+        (1000_000_000_000_000_000, 'EB', 10),
+        (1000_000_000_000_000, 'PB', 10),
         (1000_000_000_000, 'TB', 10),
         (1000_000_000, 'GB', 10),
         (1000_000, 'MB', 10),
@@ -64,10 +67,16 @@ def make_verbose_hooks():
     
     def preallocation_pos(pos, l_prev, t_prev, t):
         if l_prev is not None and t_prev is not None and t is not None:
-            speed = math.ceil(l_prev / (t - t_prev))
+            t_delta = t - t_prev
+            
+            if t_delta < 0.000001:
+                speed_phrase = f'buffer written pretty fast'
+            else:
+                speed = math.ceil(l_prev / t_delta)
+                speed_phrase = f'buffer written at {format_length(speed)}/s'
             
             print(f'current position: {repr(pos)} ({format_length(pos)})'
-                    f'; buffer written at {format_length(speed)}/s')
+                    f'; {speed_phrase}')
         else:
             print(f'current position: {repr(pos)} ({format_length(pos)})')
     
